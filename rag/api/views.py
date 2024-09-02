@@ -3,14 +3,19 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
 from lib.langchain import LangchainClient
-
-
+from utils.perform_query import execute_raw_query
+from django.http import JsonResponse
 class RAGAPI(APIView):
     def post(self,request):
+        files = request.FILES.getlist('files')
         client = LangchainClient()
-        docs = client.getChunkedDocsFromPDF()
-        vectorStore =client.embedData(docs=docs)
-        return Response({'msg':'trigger', 'vector_store':vectorStore}, status=HTTP_200_OK)
+        
+        for file in files:
+            docs = client.getChunkedDocsFromPDF(file)
+            vectorStore =client.embedData(docs=docs)
+            print(docs)
+            
+        return Response({'msg':'trigger'}, status=HTTP_200_OK)
     
 
 class RAGQA(APIView):
@@ -19,7 +24,21 @@ class RAGQA(APIView):
     def post(self , request):
         data = request.data
         if data['query']:
-            result = self.langchainClient.qaChain(query=f"{data['query']} you should only give the anwser from the provided context. If you do not find the answer then response with 'The provided question is out of context or not mention in the context anywhere'")        
+            result = self.langchainClient.simpleFunctionCalling(query=f"{data['query']}")        
+            return Response({'msg':'success', 'result':result},status=HTTP_200_OK)
+        result = 'Please provide the query for search'        
+        return Response({'msg':'success', 'result':result},status=HTTP_200_OK)
+
+
+
+class DBRAG(APIView):
+    def __init__(self, **kwargs):
+        self.langChainClient = LangchainClient()
+    def post(self, request):
+        
+        data = request.data
+        if data['query']:
+            result = self.langChainClient.qaDB(query=f"{data['query']}")        
             return Response({'msg':'success', 'result':result},status=HTTP_200_OK)
         result = 'Please provide the query for search'        
         return Response({'msg':'success', 'result':result},status=HTTP_200_OK)

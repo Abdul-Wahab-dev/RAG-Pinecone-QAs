@@ -20,5 +20,6 @@ from api import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/' , views.RAGAPI.as_view()),
-    path('qa/',views.RAGQA.as_view())
+    path('qa/',views.RAGQA.as_view()),
+    path('db/', views.DBRAG.as_view())
 ]
