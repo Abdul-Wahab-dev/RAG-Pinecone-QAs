@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
-
+import os
+import pymysql
+pymysql.install_as_MySQLdb()
 # Load environment variables from .env file
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -83,6 +85,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'secondary':{
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DATABASE'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
@@ -127,3 +137,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DATABASE_ROUTERS = ['rag.db_router.MyDatabaseRouter']
